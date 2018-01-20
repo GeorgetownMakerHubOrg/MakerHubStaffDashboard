@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title> Maker Hub Staff Summary</title>
+  <?!= include("STYLESHEET"); ?>
+    <base target="_top">
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  	<link href="https://cdn.rawgit.com/Mottie/tablesorter/f451b508/css/theme.default.css" rel="stylesheet">
+  
+  
+  <script src="https://cdn.rawgit.com/Mottie/tablesorter/f451b508/js/jquery.tablesorter.combined.js"
+    crossorigin="anonymous"></script>
+  
+  
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    
+  </head>
+  <body>
+  <!-- tinyurl is http://tinyurl.com/gumh-staff -->
+<!--  <span id="clickme">click</span> -->
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Hey there new swiper!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Looks like we don't recognize that card <span class="swipeiddisplay"></span>, but if you tell us your netId now, we'll remember it for next time!<BR>
+        My NetId is:
+        <input type="text" class="swipeNetIdInput" /> 
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="closeSwipemap btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="submitSwipemap btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<BR>
+  <div class="searchfield">Search: <input type="text" class="searchinput" />
+  <span class="clickable show-full-list">Show Full Staff List</span>
+  </div>
+  
+  <div class="stafflist">
+    <table border='1' id='stafflisttable' class='tablesorter'></table>
+  </div>
+
+
+
+  <div class="staffview">
+    <div class="row" style="">
+      <div class="col-md-9"  style="">
+          <h1><span class='staff-name'></span>
+            <span class='staff-netid'></span>
+          </h1>
+          <span class="staff-sentence"></span>
+      </div>
+      <div class="col-md-3"  style="">
+        <span class="clickable refresh" style="float: right; margin-top:30px;">refresh</span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <img class='staff-img' id="facepic" src=""/>
+        <BR>
+      </div>
+      <div class="col-md-9 celebrate-metrics">
+        <div class="alert alert-success">Upcoming Shifts:<BR> <span class='staff-shift'></span></div>
+        <div class="alert alert-success">Has helped someone <b><span class='staff-number-of-helps'></span></b> times.
+          <br><span class="subtext">According to the <a href="https://tinyurl.com/mh-helped" target="_blank">'I helped someone' form</a></span>
+        </div>
+        <div class="alert alert-success">First Signin was on <b><span class='staff-first-signin'></span></b>, Last Signin on <b><span class='staff-last-signin'></span></b></div>
+        <div class="alert alert-success">Has signed in <b><span class='staff-number-of-signins'></span></b> times.</div>
+      </div>
+    </div>
+
+    <div class="page-header">
+      <h1>Merit Badges</h1>
+      <div class="row staff-merit-badges"></div>
+    </div>
+
+    <div class="page-header trello-container">
+      <h1>Trello Tasks:</h1>
+      <div class="trello-link"><a target="_blank" class='staff-trello-id-href' >View on Trello</a></div>
+      <div class="row staff-trello"></div>
+    </div>
+
+    <div class="page-header">
+      <h1>You might need to finish:</h1>
+      <div class="row staff-todos"></div>
+    </div>
+
+    <div class="page-header">
+      <h1>Merit Badges In Your Future</h1>
+      <div class="row staff-merit-badge-todos"></div>
+    </div>
+
+  </div>
+  
+  <div class="rawdata"></div>
+</div>
+      
+      
+<script>
+// The code in this function runs when the page is loaded.
+var MeritBadges = [
+  "Laser Cutter",
+  "3D Printing",
+  "Hand Tools",
+  "HandiBot",
+  "Power Tools",
+  "Print Shop",
+  "Sewing Machine",
+  "Embroidery Machine",
+  "Vinyl Cutter",
+  "FormLabs",
+  "Soldering",
+  "Arduino",
+  "Button Maker",
+  "Raspberry Pi"
+];
+
+var MeritBadgesAndIcons = {};
+
+var StaffToDoItems = {
+  "Phone Number": "Send your phone number to Maker Hub Manager.",
+  "Staff Orientation": "Do Staff/Volunteer Orientation.",
+  "Headshot": "Send Maker Hub Manager a headshot.",
+  "Trello ID": "Send Maker Hub Manager your Trello ID",
+  "On Facebook Group": "Join the Maker Hub Facebook Group https://www.facebook.com/groups/gumakerhub/ .",
+  "Pic on Website": "Make sure your picture is up on the website http://library.georgetown.edu/makerhub/community.",
+  "Bio/MH Sentence": "Send the Maker Hub Manager a Quote about why you love the Maker Hub :).",
+  "Quote on Website": "Make Sure your quote is on the community section of our website, under your picture.",
+  "Year, Major": "Provide your year and major to Maker Hub Manager",
+  "Available Hours": "Fill out the 'Available Hours' spreadsheet",
+  "shift on google calendar": "Make sure the Maker Hub Manager has put your shift on the Google Calendar.",
+  "On Share Drive": "Make sure the Maker Hub Manager has shared the Maker Hub Google Drive folder with you.",
+  "On Mailing List": "Make sure the Maker Hub Manager has put you on his mailing list",
+  "In Google Group": "Join the Maker Hub google Group https://groups.google.com/forum/#!forum/maker-hub",
+  "Signed Agreement": "Sign the Staff Agreement to get your Keycode",
+  "Assigned Keycode": "Make sure the Maker Hub Manager has given you a keycode",
+  "Added to Trello": "Make sure the Maker Hub Manager has invited you to Trello",
+  "Sent link re Minors": "Make sure the Maker Hub Manager has sent you a link to sign the form re: Working with Minors",
+  "Completed Minors form": "Complete the Maker Hub form re Working with Minors",
+  "WebCheckout Training": "Do the Webcheckout Training",
+  "WebCheckout User": "Make sure the Maker Hub Manager adds you as a Webcheckout Users (Staff Only)"
+};
+
+var DOWS = [
+"Sunday",
+"Monday",
+"Tuesday",
+"Wednesday",
+"Thursday",
+"Friday",
+"Saturday",
+];
+
+
+$.expr[":"].contains = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
+
+function toReadableDate(dateString){
+  // on March 3, 2017 15:00"
+  //  dateString = "2018-10-10T14:49:31.049Z"
+  var myDate = new Date(dateString);
+  console.log(dateString);
+  console.log(myDate.getYear());
+  var newdateString = parseInt(myDate.getMonth()) + 1 + "/" + myDate.getDate() + "/" + (myDate.getYear() - 100)+ " " + myDate.getHours() + ":" + myDate.getMinutes();
+  return newdateString;
+}
+
+function populateMeritBadgeIconList(){
+
+  var gotMeritBadeIconList = function(data){
+    console.log("got merit badge and icon data");
+    console.log(data);
+    MeritBadgesAndIcons = data;
+  }
+  
+  google.script.run
+      .withSuccessHandler(gotMeritBadeIconList)
+      .withFailureHandler(function(errormsg){console.log("ERROR IN populateMeritBadgeIconList"); console.log(errormsg);})
+      .getMeritBadgeIconList();  
+
+}
+
+function time24to12(time24){
+  console.log(time24);
+  var split = time24.split(":");
+  var hours = parseInt(split[0]);
+  var ap = "am";
+  if(hours >= 12){
+    ap = "pm";
+  }
+  if(hours > 12){
+    hours = hours - 12;
+  }
+  var time12 = hours+":"+split[1]+ap;
+  return time12;
+}
+
+function toReadableDOWDateRange(startDateString, endDateString){
+  // on March 3, 2017 15:00"
+  //  dateString = "2018-10-10T14:49:31.049Z"
+  var myStartDate = new Date(startDateString);
+  var myEndDate = new Date(endDateString);
+  console.log(myStartDate.getMonth());
+  var startTime = time24to12(myStartDate.getHours() + ":" + myStartDate.getMinutes().toString().padStart(2,0));
+  var endTime = time24to12(myEndDate.getHours() + ":" + myEndDate.getMinutes().toString().padStart(2,0));
+  
+  var dateString = DOWS[myStartDate.getDay()] + " " 
+                   + (parseInt(myStartDate.getMonth()) + 1)
+                   + "/" + myStartDate.getDate() + " " 
+                   + startTime
+                   + " - " +  endTime;
+  return dateString;
+}
+
+
+function showTrelloCards(trelloCards){
+  $(".staff-trello").empty();
+  console.log(trelloCards);
+  if(trelloCards.cards.length  > 0){
+    $.each(trelloCards.cards, function(key, card){
+      $("<div class='col-md-4'>").appendTo(".staff-trello").append("<div class='alert alert-danger'><a href='"+card.shortUrl+"' target='_blank'>"+card.name+"</a></div>");      
+    }); 
+  }else{
+  }
+}
+
+function showStaffData(staffData){
+  console.log(staffData);
+  
+  var email = staffData.checklistData.data.NetId.toLowerCase().trim()+"@georgetown.edu";
+    
+  $(".staff-img").attr('src', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABA‌​AACAUwAOw==');
+  
+  $(".staff-name").text(staffData.checklistData.data.Name);
+  $(".staff-netid").text(staffData.checklistData.data.NetId);
+  $(".staff-sentence").text(staffData.checklistData.data['Bio/MH Sentence']);
+  $(".staff-img").attr("src", staffData.checklistData.data['Pic on Website']);
+  $(".staff-number-of-helps").text(staffData.checklistData.data['number of helps']);
+  $(".staff-number-of-signins").text(staffData.checklistData.data['number of signins']);
+  $(".staff-first-signin").text(toReadableDate(staffData.checklistData.data['first signin']['Timestamp']));
+  $(".staff-last-signin").text(toReadableDate(staffData.checklistData.data['last signin']['Timestamp']));
+  
+  $(".refresh").unbind("click");
+  
+  $(".refresh").click(function(){
+      google.script.run
+      .withSuccessHandler(showStaffData)
+      .withFailureHandler(function(errormsg){})
+      .getStaffData(staffData.checklistData.data.NetId);  
+  });
+  
+  
+  
+  $(".staff-trello").empty();  
+  if(staffData.checklistData.data['Trello ID'].trim() != ""){
+     $(".staff-trello-id-link").show();
+     $(".staff-trello-id-href").attr("href","https://trello.com/"+staffData.checklistData.data['Trello ID'].trim()+"/cards");
+     google.script.run
+      .withSuccessHandler(showTrelloCards)
+      .withFailureHandler(function(errormsg){})
+      .getTrelloCards(staffData.checklistData.data['Trello ID'].trim());     
+  }else{
+    $(".staff-trello-id-link").hide();
+  }
+  
+  $(".staff-merit-badges").empty();
+  $(".staff-merit-badge-todos").empty();
+  $.each(MeritBadgesAndIcons, function(key, meritBadge){
+      var staffMeritBadge = staffData.checklistData.data[key].trim();
+      if(staffMeritBadge != ""){
+          $("<div class='col-md-3 merit-badge-has'>").appendTo(".staff-merit-badges").append("<div class='alert alert-success'><img width='64px'src='"+meritBadge['Image Full URL']+"' />"+key+"</div>");      
+      }else{
+          $("<div class='col-md-3 merit-badge-no-has'>").appendTo(".staff-merit-badge-todos").append("<div class='alert alert-info'><img  width='64px'src='"+meritBadge['Image Full URL']+"' />"+key+"</div>");      
+      }
+  });
+
+  $(".staff-todos").empty();
+  $.each(StaffToDoItems, function(key, toDoItem){
+      var staffToDo = staffData.checklistData.data[key].trim();
+      if(staffToDo == ""){
+          $("<div class='col-md-4'>").appendTo(".staff-todos").append("<div class='alert alert-danger'>"+toDoItem+"</div>");      
+      }
+  });  
+  
+  var shifts = staffSchedules[email];
+  var shift_msgs = [];
+  $.each(shifts, function(key, shift){
+     var start = shift.startTime;
+     var end = shift.endTime;
+     shift_msgs.push(toReadableDOWDateRange(start, end));
+  });
+  var shift_text = shift_msgs.join(", ");
+  $(".staff-shift").text(shift_text);
+  
+}
+
+
+function generateStaffList(){
+  function showStaffList(stafflist){
+    $("#stafflisttable").empty();
+    $("#stafflisttable").trigger("destroy");
+   
+    var stafflistFields = [
+      'Name',
+      'NetId',
+      'Staff/Volunteer'
+    ];
+   
+    var skipfields = [
+      'Bio/MH Sentence' 
+    ];
+
+    var checklistData = stafflist.checklistData.data;
+    var keysInOrder = stafflist.checklistData.idKey;
+    var stafflistFields = keysInOrder;
+
+    var head = $("<thead>").appendTo("#stafflisttable");
+    var thr = $("<tr>").appendTo(head);
+    $(thr).append("<td>&nbsp;</td>");
+    $.each(stafflistFields, function(index, key){
+      if (!$.inArray(key, skipfields)){ return true;}
+      $(thr).append("<td>"+key+"</td>");
+    });
+       
+    var tbody = $("<tbody class='datafields'>").appendTo("#stafflisttable");
+    $.each(checklistData, function(index, staffrow){
+      $(".rawdata").append("<pre>"+JSON.stringify(staffrow, null, "  ")+"</pre>");
+      var stafftrow = $("<tr class='staffrow' data-netid='"+staffrow.NetId+"'>").appendTo(tbody);
+      $(stafftrow).append("<td class='clicktoview clickable'>view</td>");
+          
+      $.each(stafflistFields, function(index2, key){
+        if (!$.inArray(key, skipfields)){ return true;}
+        $(stafftrow).append("<td class='staffElem"+index2+"'>"+staffrow[key]+"</td>");
+      });
+    });
+    $("#stafflisttable").tablesorter();
+    $(".staffElem1").addClass("clicktoview");
+    $(".staffElem0").addClass("clicktoview");
+    $(".staffElem1").addClass("clickable");
+    $(".staffElem0").addClass("clickable");
+       
+    $(".clicktoview").click(function(e){
+      var parent = $(e.target).parent();
+      var netId = $(".staffElem1", parent).text().trim().toLowerCase();
+      $(".staffview").show();
+      $(".stafflist").hide();
+      google.script.run
+      .withSuccessHandler(showStaffData)
+      .withFailureHandler(function(errormsg){})
+      .getStaffData(netId);
+    });  
+  }
+    
+  google.script.run.withSuccessHandler(showStaffList).getStaffList();
+}
+
+var staffSchedules = {};
+function setStaffSchedules(schedules){
+  staffSchedules = schedules;
+  console.log(staffSchedules);
+}
+
+
+function setupSwipeReader(){
+ var swipeChars = "";
+ var reading_swipeChars = "";
+ var readingSwipe = false;
+ var swipeIdHash = {};
+ 
+ google.script.run
+   .withSuccessHandler(function(data){
+      console.log("swipeIDs are");
+      swipeIdHash = data;
+      console.log(data);
+   })
+   .withFailureHandler(function(error){console.log(error);})
+   .getSwipeIds(); 
+ 
+  $(document).keypress(function(evt){
+    console.log(evt.key);
+    if(evt.key == "%"){
+      readingSwipe = true;
+    }
+    if(readingSwipe && evt.key == "?"){
+      // done
+      readingSwipe = false;
+      swipeChars = reading_swipeChars;
+      reading_swipeChars = "";
+      // lookup swipechars here.
+      var netId = "";
+      if(swipeIdHash[swipeChars]){
+        netId = swipeIdHash[swipeChars].NetID.trim();
+        setTimeout(function(){
+          // also, set input to the netid, 
+          $(".searchinput").val(netId);
+          // show staff info
+          $(".staffview").show();
+          $(".stafflist").hide();
+          $(".searchinput").val('');
+          
+          google.script.run
+            .withSuccessHandler(showStaffData)
+            .withFailureHandler(function(errormsg){})
+            .getStaffData(netId);        
+          }, 1000);         
+      }
+      else{
+        // figure out the netId, enter into db.
+        $('#myModal').modal('show');
+        $(".swipeNetIdInput").val('');
+        $(".swipeNetIdInput").focus();
+        $(".swipeiddisplay").text("(swipedId: "+swipeChars+")");
+        $(".closeSwipemap").click(function(){
+           $(".searchinput").val("");
+           return true;
+        });
+        $(".submitSwipemap").click(function(){
+          var netId = $(".swipeNetIdInput").val().trim();        
+          console.log(netId);
+          
+          google.script.run
+            .withSuccessHandler(function(returnVal){console.log("done!");})
+            .withFailureHandler(function(errormsg){})
+            .enterNewSwipeId(netId, swipeChars);           
+          $('#myModal').modal('hide');
+          swipeIdHash[swipeChars] = netId;
+                
+          setTimeout(function(){
+            // also, set input to the netid, 
+            $(".searchinput").val(netId);
+            // show staff info
+            $(".staffview").show();
+            $(".stafflist").hide();
+              google.script.run
+               .withSuccessHandler(showStaffData)
+              .withFailureHandler(function(errormsg){})
+              .getStaffData(netId);        
+          }, 1000);
+          return true;
+        });
+      }
+      
+      
+    }
+    if(readingSwipe){
+      reading_swipeChars += evt.key;
+    }
+  }); 
+  
+  $(".searchinput").focus();
+}
+
+
+$(function() {
+  $(".stafflist").show();
+  $(".staffview").hide();    
+  $(".rawdata").hide();
+
+  populateMeritBadgeIconList();
+
+  $(".searchinput").keyup(function(){
+    $(".stafflist").show();
+    $(".staffview").hide();    
+    var value = $(".searchinput").val();
+    var datafields = $(".datafields");
+    $("td:not(:contains('"+value+"'))", datafields).parent().hide();
+    $("td:contains('"+value+"')", datafields).parent().show();
+    if($(".staffrow:visible", datafields).length == 1){
+      var thisrow = $(".staffrow:visible", datafields).get(0);
+      console.log(thisrow);
+      var netId = $(thisrow).data("netid");
+      console.log("one, and netid is " + netId);
+      $(".staffview").show();    
+      google.script.run
+      .withSuccessHandler(showStaffData)
+      .withFailureHandler(function(errormsg){})
+      .getStaffData(netId);    
+    }else{
+      $(".staffview").hide();
+    
+    }
+  });
+
+  $(".show-full-list").click(function(){
+     $(".searchinput").val("");
+     var datafields = $(".datafields");
+     $(".staffview").hide();
+     $(".stafflist").show();
+     generateStaffList();
+  });
+  
+  
+  $(".staffview").hide();
+  $(".stafflist").show();
+  generateStaffList();
+    
+  google.script.run.withSuccessHandler(setStaffSchedules).getStaffSchedules();
+  
+  setupSwipeReader();
+  
+});
+
+
+
+
+</script>    
+</body>
+</html>
+
+
